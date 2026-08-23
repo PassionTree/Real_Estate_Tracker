@@ -23,7 +23,8 @@
 
 ## 시작하기
 
-Node.js 20.9 이상이 필요합니다 (`node -v` 로 확인).
+**Node.js `20.19+` / `22.12+` / `24+`** 가 필요합니다 (`node -v` 로 확인).
+Next.js 16 은 20.9 이상이면 되지만 Prisma 7 이 더 좁습니다 — 20.9~20.18 과 22.0~22.11 은 벗어납니다.
 
 ```bash
 npm install                 # 의존성 설치 + Prisma 클라이언트 생성
@@ -60,6 +61,9 @@ npm run dev                 # http://localhost:3000
 | `sh: next: command not found` | `npm install` 을 하지 않았습니다 |
 | `Cannot find module '.../lib/generated/prisma/client'` | `npx prisma generate` 를 실행하세요. 보통 `npm install` 이 자동으로 합니다 |
 | `The datasource.url property is required` | `.env` 가 없거나 `DATABASE_URL` 이 비어 있습니다 |
+| `npx prisma ...` 가 `Need to install the following packages` 를 묻는다 | `node_modules` 에 prisma 가 없다는 뜻입니다. `npm install` 이 끝나지 않았습니다 |
+| `Failed to load config file ... Cannot find module 'dotenv/config'` | 같은 원인입니다. `npm install` 을 먼저 끝내세요 |
+| `npm warn EBADENGINE ... @prisma/streams-local` | 무시해도 됩니다. `prisma → @prisma/dev` 가 끌어오는 Prisma Postgres 전용 패키지이고, SQLite 를 쓰는 이 앱은 사용하지 않습니다 |
 | `/setup` 안내 화면이 뜬다 | `SHARED_PASSWORD` 나 `SESSION_SECRET` 이 비어 있습니다. 서명키 없이는 위조 쿠키를 걸러낼 수 없어 일부러 막아 둡니다 |
 
 ### 명령어
