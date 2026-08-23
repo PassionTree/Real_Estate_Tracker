@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 부동산 트래커
 
-## Getting Started
+관심 매물, 자금 계획, 부동산 정책을 한 곳에서 보기 위한 부부·가족용 웹앱.
 
-First, run the development server:
+## 이 앱이 하는 일 (그리고 하지 않는 일)
+
+시세지도, 경사도, 3D 일조량, 학군, 입주물량, 매수심리 — 이런 것들은
+[호갱노노](https://hogangnono.com/), [아실](https://asil.kr/), 부동산지인이 이미 무료로 압도적으로 잘 한다.
+취득세·양도세 정밀 계산은 [부동산계산기.com](https://xn--989a00af8jnslv3dba.com/)이 정확하다.
+이길 수 없고 이길 이유도 없다.
+
+> **모르는 매물을 찾는 건 호갱노노가 한다. 이 앱은 내가 고른 매물의 의사결정 기록을 자동화한다.**
+
+그래서 엑셀·노션으로 **안 되는 것**만 만들었다.
+
+| 자체 구현 | 딥링크로 위임 |
+|---|---|
+| 호가 변동 자동 기록 | 경사도·일조량·학군·상권 → 호갱노노 |
+| 가중치를 바꾸면 순위 즉시 재계산 | 여러 단지 시세 비교 → 아실 |
+| 부분 입력을 전제로 한 평가 점수 | 취득세·양도세 정밀 계산 → 부동산계산기.com |
+| 평당가·월 총주거비 자동 산출 | 등기부 열람 → 인터넷등기소 |
+| 필터 상태를 URL로 공유 | 매물 탐색 → 네이버부동산 |
+
+## 시작하기
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env        # SHARED_PASSWORD 와 SESSION_SECRET 을 채우세요
+npx prisma migrate deploy
+npm run db:seed             # 기본 평가 항목 6개
+npm run dev                 # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`SESSION_SECRET` 은 `openssl rand -hex 32` 로 만들면 됩니다.
+두 값이 없으면 앱이 로그인을 통과시키는 대신 `/setup` 안내 화면을 보여줍니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 명령어
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| | |
+|---|---|
+| `npm run dev` | 개발 서버 |
+| `npm test` | 계산 로직 단위 테스트 (83개) |
+| `npm run build` | 타입체크 + 프로덕션 빌드 |
+| `npm run db:studio` | 데이터베이스 직접 열기 |
+| `npm run backup` | **데이터베이스 백업** |
 
-## Learn More
+## 설계에서 지킨 것들
 
-To learn more about Next.js, take a look at the following resources:
+### 1. 등록 마찰을 줄이는 것이 최우선
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+개인용 트래커가 죽는 이유는 기능 부족이 아니라 입력 마찰이다.
+네이버 부동산을 보다가 넘어와 필드 20개를 채워야 하면 사흘 만에 엑셀로 돌아간다.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **필수 입력은 별칭 하나.** 가격도 링크도 나중에 채워도 된다
+- 상세 필드는 접어 두고, 금액은 `5억8천` `5.8억` `58000` 을 모두 같게 읽는다
+- 입력하는 동안 "5억 8,000만원"을 즉시 보여줘 0 하나 차이를 막는다
 
-## Deploy on Vercel
+### 2. 미평가 항목은 0점이 아니라 계산에서 제외한다
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`lib/scoring.ts` 의 핵심 규칙이다. 0점으로 치면 일부만 평가한 매물이 부당하게 하위로 밀리고,
+그러면 아무도 점수를 안 쓰게 되고, 그러면 기능 전체가 죽는다.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+6개 항목 중 2개에만 4점을 준 매물은 **75점**이다. 0점 처리했다면 25점이 됐을 것이다.
+대신 `2/6` 을 함께 보여줘 몇 개를 보고 낸 점수인지 알 수 있게 했다.
+
+### 3. 호가 변동 이력은 처음부터 넣는다
+
+다른 기능과 달리 **소급이 불가능**하다. 나중에 붙이면 그 전의 변동은 영원히 사라진다.
+가격을 바꿔 저장할 때마다 자동으로 기록되고, 목록에 `▼5,000` 배지가, 상세에 그래프가 뜬다.
+"3주째 안 팔리고 5천 내렸다"는 협상에서 실제로 쓰이는 정보다.
+
+### 4. 정책 수치를 코드에 박지 않는다
+
+LTV·DSR·취득세율·중개보수 요율은 자주 바뀐다.
+전부 `data/policy/*.json` 에 **기준일(`asOf`)과 출처 URL과 함께** 두고 로직은 읽기만 한다.
+화면에는 값 옆에 항상 "2026년 8월 기준 · 출처" 배지가 붙는다. 정책이 바뀌면 JSON만 고치면 된다.
+
+> ⚠️ 저장소에 담긴 세율은 2026년 8월 기준으로 채운 값입니다.
+> **쓰기 전에 출처 링크에서 현재 값을 확인하세요.** 다주택 중과·생애최초 감면·조정대상지역은 반영하지 않은 개산입니다.
+
+### 5. 한글 CSV는 인코딩에서 깨진다
+
+엑셀이 저장한 파일은 대개 EUC-KR 이고, 엑셀이 UTF-8 을 제대로 열려면 BOM 이 필요하다.
+한 번 깨져 보이면 사용자는 이 기능을 다시 쓰지 않는다.
+→ 내보낼 때 BOM 을 붙이고, 읽을 때 EUC-KR 로 폴백한다.
+한 행이 잘못돼도 나머지는 살리고, 몇 행에 무슨 문제가 있었는지 알려준다.
+
+### 6. 백업
+
+SQLite 파일 하나에 몇 달치 기록이 들어 있는 self-hosted 앱이다. 날아가면 임장 다니며 쌓은 판단이 통째로 사라진다.
+
+```bash
+npm run backup     # backups/ 에 타임스탬프로 복사, 최근 10개 보관
+```
+
+CSV 내보내기도 사실상의 백업 역할을 한다.
+디스크가 통째로 죽는 경우를 대비해 **가끔 다른 저장소로도 옮겨 두세요.**
+
+## 배포에 대해
+
+**SQLite 는 Vercel 같은 서버리스 환경에서 동작하지 않습니다.** 요청마다 파일시스템이 초기화되기 때문입니다.
+자체 호스팅(집 서버·NAS·VPS·로컬)을 전제로 만들었습니다.
+
+DB 접근은 Prisma 로만 하므로, 나중에 Postgres 나 Turso 로 옮기려면
+`prisma/schema.prisma` 의 datasource 와 `DATABASE_URL` 만 바꾸면 됩니다.
+
+인터넷에 노출해 쓸 거라면 **HTTPS 는 필수**입니다. 지금 인증은 공유 비밀번호 하나뿐입니다.
+
+## 기술 스택
+
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 ·
+Prisma 7 + SQLite (better-sqlite3 어댑터) · Recharts · Vitest
+
+> Next.js 16 에서 `middleware` 규약은 `proxy` 로 이름이 바뀌었습니다 (`proxy.ts`).
+> Prisma 7 부터는 드라이버 어댑터가 필수입니다.
+
+## 앞으로
+
+`docs/ROADMAP.md` 를 보세요. `/finance`, `/policy`, `/market` 은 지금 링크 허브이고,
+실제로 써 보면서 아쉬운 것부터 자체 기능으로 바꿔 갈 계획입니다.
