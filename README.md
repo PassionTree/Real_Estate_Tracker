@@ -23,16 +23,44 @@
 
 ## 시작하기
 
+Node.js 20.9 이상이 필요합니다 (`node -v` 로 확인).
+
 ```bash
-npm install
-cp .env.example .env        # SHARED_PASSWORD 와 SESSION_SECRET 을 채우세요
-npx prisma migrate deploy
+npm install                 # 의존성 설치 + Prisma 클라이언트 생성
+cp .env.example .env        # Windows: copy .env.example .env
+```
+
+`.env` 를 열어 두 값을 채웁니다. 나머지는 그대로 두면 됩니다.
+
+```
+SHARED_PASSWORD=원하는_비밀번호     # 로그인 화면에서 칠 값
+SESSION_SECRET=...                # 아래 명령으로 생성
+```
+
+`SESSION_SECRET` 은 로그인 쿠키를 서명하는 키입니다. 직접 만들어 넣으세요.
+
+```bash
+openssl rand -hex 32
+# openssl 이 없다면 (Windows 등)
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+이어서 데이터베이스를 만들고 실행합니다.
+
+```bash
+npx prisma migrate deploy   # dev.db 생성
 npm run db:seed             # 기본 평가 항목 6개
 npm run dev                 # http://localhost:3000
 ```
 
-`SESSION_SECRET` 은 `openssl rand -hex 32` 로 만들면 됩니다.
-두 값이 없으면 앱이 로그인을 통과시키는 대신 `/setup` 안내 화면을 보여줍니다.
+### 막혔을 때
+
+| 증상 | 원인 |
+|---|---|
+| `sh: next: command not found` | `npm install` 을 하지 않았습니다 |
+| `Cannot find module '.../lib/generated/prisma/client'` | `npx prisma generate` 를 실행하세요. 보통 `npm install` 이 자동으로 합니다 |
+| `The datasource.url property is required` | `.env` 가 없거나 `DATABASE_URL` 이 비어 있습니다 |
+| `/setup` 안내 화면이 뜬다 | `SHARED_PASSWORD` 나 `SESSION_SECRET` 이 비어 있습니다. 서명키 없이는 위조 쿠키를 걸러낼 수 없어 일부러 막아 둡니다 |
 
 ### 명령어
 
