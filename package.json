@@ -11,10 +11,11 @@
     "test:watch": "vitest",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
+    "db:seed": "tsx prisma/seed.mts",
     "backup": "tsx scripts/backup.ts"
   },
   "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "iconv-lite": "^0.7.3",
     "next": "16.3.2",

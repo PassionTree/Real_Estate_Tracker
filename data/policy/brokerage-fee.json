@@ -1,0 +1,22 @@
+{
+  "asOf": "2026-08",
+  "source": "https://www.easylaw.go.kr/CSP/CnpClsMain.laf?csmSeq=649&ccfNo=2&cciNo=2&cnpClsNo=2",
+  "title": "주택 중개보수 상한요율 (매매·교환)",
+  "note": "법정 상한이며 실제로는 이 안에서 협의한다. 지역별로 다를 수 있고 여기 값은 서울 기준이다. 매도인·매수인이 각자 부담한다.",
+  "sale": [
+    { "underManwon": 5000, "rate": 0.006, "capManwon": 25 },
+    { "underManwon": 20000, "rate": 0.005, "capManwon": 80 },
+    { "underManwon": 90000, "rate": 0.004, "capManwon": null },
+    { "underManwon": 120000, "rate": 0.005, "capManwon": null },
+    { "underManwon": 150000, "rate": 0.006, "capManwon": null },
+    { "underManwon": null, "rate": 0.007, "capManwon": null }
+  ],
+  "lease": [
+    { "underManwon": 5000, "rate": 0.005, "capManwon": 20 },
+    { "underManwon": 10000, "rate": 0.004, "capManwon": 30 },
+    { "underManwon": 60000, "rate": 0.003, "capManwon": null },
+    { "underManwon": 120000, "rate": 0.004, "capManwon": null },
+    { "underManwon": 150000, "rate": 0.005, "capManwon": null },
+    { "underManwon": null, "rate": 0.006, "capManwon": null }
+  ]
+}
