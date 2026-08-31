@@ -11,7 +11,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { parseManwon } from "@/lib/money";
+import { formatManwon, parseManwon } from "@/lib/money";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 
 export async function currentUser(): Promise<string | null> {
@@ -227,4 +227,40 @@ export async function deleteCriterion(id: string) {
   await prisma.criterion.delete({ where: { id } });
   revalidatePath("/settings");
   revalidatePath("/listings");
+}
+
+/**
+ * 단지 후보를 관심 매물로 담는다.
+ *
+ * priceManwon 은 일부러 비워 둔다 — 실거래가는 호가가 아니다.
+ * 실거래가는 지나간 사실이고 호가는 지금의 협상 시작점이라, 이 둘을 섞으면
+ * 이 앱이 지켜 온 구분이 무너진다. 대신 메모에 실거래 중앙값을 남겨 비교 기준만 준다.
+ */
+export async function addComplexAsListing(candidate: {
+  aptNm: string;
+  umdNm: string | null;
+  buildYear: number | null;
+  areaGroup: number;
+  dealCount: number;
+  medianManwon: number;
+  latestDealDate: string;
+}) {
+  const user = await currentUser();
+  const latest = new Date(candidate.latestDealDate);
+
+  const listing = await prisma.listing.create({
+    data: {
+      nickname: candidate.aptNm,
+      complexName: candidate.aptNm,
+      address: candidate.umdNm,
+      areaM2: candidate.areaGroup,
+      builtYear: candidate.buildYear,
+      createdBy: user,
+      memo: `최근 실거래 중앙값 ${formatManwon(candidate.medianManwon)} (${candidate.dealCount}건, ~${latest.toLocaleDateString("ko-KR")}). 실제 호가는 딥링크로 확인해 직접 입력하세요.`,
+    },
+  });
+
+  revalidatePath("/listings");
+  revalidatePath("/");
+  return listing.id;
 }

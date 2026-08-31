@@ -4,6 +4,7 @@ import { currentUser } from "@/lib/actions";
 const NAV = [
   { href: "/", label: "대시보드", icon: "◎" },
   { href: "/listings", label: "매물", icon: "▤" },
+  { href: "/discover", label: "단지 찾기", icon: "◈" },
   { href: "/compare", label: "비교", icon: "⇄" },
   { href: "/finance", label: "대출·자금", icon: "₩" },
   { href: "/policy", label: "정책", icon: "§" },

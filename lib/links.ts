@@ -18,37 +18,53 @@ function q(value: string): string {
   return encodeURIComponent(value.trim());
 }
 
-/** 매물 상세에서 띄우는 링크들. 검색어로 쓸 만한 값이 없으면 그 링크는 내보내지 않는다. */
+/**
+ * 단지명(또는 주소)으로 외부 서비스를 검색하는 링크.
+ *
+ * 매물 상세와 "조건에 맞는 단지 찾기" 결과가 이 함수를 함께 쓴다.
+ * 등록된 매물이든, 실거래가로 찾아낸 단지 후보든, 이름만 있으면 똑같이 동작한다.
+ *
+ * 조건 검색 결과 URL(가격·연식 필터가 걸린 네이버 검색 화면)은 만들지 않는다.
+ * new.land.naver.com 주소창에는 좌표·매물유형·거래유형까지만 담기고
+ * 가격·연식 범위가 담긴다는 근거를 찾지 못했다. 안 걸린 채 열리면 필터를 건 것보다 나쁘다.
+ * 대신 단지명으로 검색만 하고, 조건은 사용자가 그 화면에서 마저 확인한다.
+ */
+export function complexSearchLinks(term: string): DeepLink[] {
+  const trimmed = term.trim();
+  if (!trimmed) return [];
+
+  return [
+    {
+      label: "호갱노노",
+      url: `https://hogangnono.com/search/${q(trimmed)}`,
+      description: "실거래가 시세지도, 경사도, 일조량, 학군, 상권",
+    },
+    {
+      label: "네이버지도",
+      url: `https://map.naver.com/p/search/${q(trimmed)}`,
+      description: "위치, 로드뷰, 주변 시설",
+    },
+    {
+      label: "네이버부동산",
+      url: `https://land.naver.com/search/result.naver?query=${q(trimmed)}`,
+      description: "현재 나와 있는 매물 호가",
+    },
+    {
+      label: "아실",
+      url: "https://asil.kr/",
+      description: "여러 단지 시세를 한 그래프에 겹쳐 비교",
+    },
+  ];
+}
+
+/** 매물 상세에서 띄우는 링크들. 검색어로 쓸 만한 값이 없으면 단지 검색 링크는 내보내지 않는다. */
 export function listingDeepLinks(listing: {
   complexName?: string | null;
   address?: string | null;
   priceManwon?: number | null;
 }): DeepLink[] {
   const term = listing.complexName?.trim() || listing.address?.trim() || "";
-  const links: DeepLink[] = [];
-
-  if (term) {
-    links.push({
-      label: "호갱노노",
-      url: `https://hogangnono.com/search/${q(term)}`,
-      description: "실거래가 시세지도, 경사도, 일조량, 학군, 상권",
-    });
-    links.push({
-      label: "네이버지도",
-      url: `https://map.naver.com/p/search/${q(term)}`,
-      description: "위치, 로드뷰, 주변 시설",
-    });
-    links.push({
-      label: "네이버부동산",
-      url: `https://land.naver.com/search/result.naver?query=${q(term)}`,
-      description: "현재 나와 있는 매물 호가",
-    });
-    links.push({
-      label: "아실",
-      url: "https://asil.kr/",
-      description: "여러 단지 시세를 한 그래프에 겹쳐 비교",
-    });
-  }
+  const links: DeepLink[] = [...complexSearchLinks(term)];
 
   links.push({
     label: "인터넷등기소",
