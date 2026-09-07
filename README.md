@@ -138,6 +138,8 @@ CSV 내보내기도 사실상의 백업 역할을 한다.
 DB 접근은 Prisma 로만 하므로, 나중에 Postgres 나 Turso 로 옮기려면
 `prisma/schema.prisma` 의 datasource 와 `DATABASE_URL` 만 바꾸면 됩니다.
 
+집 밖에서도 접속하고 싶다면 `docs/DEPLOY.md` 에 VPS 상시 실행 + HTTPS 가이드를 적어 두었습니다.
+
 인터넷에 노출해 쓸 거라면 **HTTPS 는 필수**입니다. 지금 인증은 공유 비밀번호 하나뿐입니다.
 
 ## 기술 스택
