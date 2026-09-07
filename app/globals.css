@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f7f8;
+  --surface: #ffffff;
+  --foreground: #17171a;
+  --muted: #6b6b76;
+  --border: #e3e3e8;
+  --accent: #2f5d50;
+  --accent-soft: #e8f0ed;
+  --danger: #b4322c;
+  --danger-soft: #fbeceb;
+  --warning: #8a5a12;
+  --warning-soft: #fdf3e2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #101013;
+    --surface: #18181c;
+    --foreground: #ececf0;
+    --muted: #9a9aa6;
+    --border: #2a2a31;
+    --accent: #7fbfa9;
+    --accent-soft: #1c2b27;
+    --danger: #e8837d;
+    --danger-soft: #2b1a1a;
+    --warning: #e0b571;
+    --warning-soft: #2a2115;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --font-sans: var(--font-pretendard), system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* 숫자를 세로로 정렬해 표에서 자릿수 비교가 쉽게 한다 */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

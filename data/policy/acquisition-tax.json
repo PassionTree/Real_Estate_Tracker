@@ -1,0 +1,15 @@
+{
+  "asOf": "2026-08",
+  "source": "https://xn--989a00af8jnslv3dba.com/%EC%B7%A8%EB%93%9D%EC%84%B8",
+  "title": "주택 취득세 (유상취득 · 1주택 기준)",
+  "note": "개산용이다. 다주택 중과(8~12%), 조정대상지역, 생애최초·신혼부부 감면, 일시적 2주택은 반영하지 않는다. 정확한 계산은 출처 링크를 쓸 것.",
+  "under6eok": { "maxManwon": 60000, "rate": 0.01 },
+  "over9eok": { "minManwon": 90000, "rate": 0.03 },
+  "middleFormula": "6억~9억 구간은 (취득가액(억) × 2/3 − 3) / 100. 6억에서 1%, 9억에서 3%로 이어진다.",
+  "localEducationTaxRatio": 0.1,
+  "ruralSpecialTax": {
+    "rate": 0.002,
+    "exemptAreaM2": 85,
+    "note": "전용 85㎡ 이하는 비과세"
+  }
+}

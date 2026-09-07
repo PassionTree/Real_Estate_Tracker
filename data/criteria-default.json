@@ -1,0 +1,11 @@
+{
+  "note": "기본 평가 항목. 항목이 많으면 아무도 채우지 않으므로 6개로 시작한다. 설정 화면에서 추가·삭제할 수 있다.",
+  "criteria": [
+    { "name": "교통·통근", "weight": 5, "isDealBreaker": false, "sortOrder": 0 },
+    { "name": "가격 적정성", "weight": 5, "isDealBreaker": false, "sortOrder": 1 },
+    { "name": "평면·구조", "weight": 4, "isDealBreaker": false, "sortOrder": 2 },
+    { "name": "연식·관리상태", "weight": 3, "isDealBreaker": false, "sortOrder": 3 },
+    { "name": "주변환경(학군·상권·소음)", "weight": 3, "isDealBreaker": false, "sortOrder": 4 },
+    { "name": "채광·향·조망", "weight": 2, "isDealBreaker": false, "sortOrder": 5 }
+  ]
+}
